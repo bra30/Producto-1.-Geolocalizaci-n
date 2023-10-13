@@ -47,9 +47,9 @@ Este proyecto utiliza varias bibliotecas de código abierto que hacen posible su
 Este proyecto se encuentra bajo la licencia MIT - para obtener más detalles, consulta el archivo LICENSE.
 
 ## Autor.
-Brandon Martín Romero García.
-Brayan Edmundo Perez Sanchez.
-Erick Vazquez Vazquez.
+- Brandon Martín Romero García.
+- Brayan Edmundo Perez Sanchez.
+- Erick Vazquez Vazquez.
 
 ## Contribuciones.
 Si deseas contribuir a este proyecto, por favor, abre un problema o una solicitud de extracción en este repositorio.
