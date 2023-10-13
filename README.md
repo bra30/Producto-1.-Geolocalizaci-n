@@ -34,7 +34,7 @@ Puedes personalizar esta aplicación ajustando las coordenadas de los nodos, cam
 
 ## Tecnologías utilizadas.
 - HTML
-- [JavaScrip].
+- JavaScrip.
 - Leaflet: Biblioteca de mapas interactivos.
 - Leaflet Routing Machine: Plugin para calcular rutas.
 - Leaflet Draw: Plugin para dibujar elementos en el mapa.
