@@ -15,7 +15,7 @@ Antes de utilizar esta aplicación, asegúrate de tener los siguientes requisito
 - Conexión a Internet (para cargar bibliotecas externas).
 - Un navegador web compatible con HTML5.
 - Permiso para acceder a la ubicación del dispositivo (para la función "Mi ubicación").
-- 
+
 ## Uso
 
 Clona este repositorio en tu máquina local:
