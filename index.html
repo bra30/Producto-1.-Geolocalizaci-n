@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa con Nodos y Botones</title>
+
+    <!-- Enlaces a hojas de estilo -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" /> <!-- Hoja de estilo de Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" /> <!-- Hoja de estilo de Leaflet Routing Machine -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> <!-- Hoja de estilo de Bootstrap -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" /> <!-- Hoja de estilo de Leaflet Draw -->
+
+    <!-- Enlaces a scripts JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script> <!-- Biblioteca Leaflet -->
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script> <!-- Plugin Leaflet Routing Machine -->
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script> <!-- Plugin Leaflet Draw -->
+
+    <style>
+        .leaflet-popup-content-wrapper {
+            background-color: rgba(255, 255, 255, 1); /* Fondo de la ventana emergente */
+            color: #000; /* Color del texto */
+        }
+        .leaflet-popup-tip-container {
+            display: none; /* Oculta la punta de la ventana emergente */
+        }
+    </style>
+</head>
+<body>
+    <div id="controls" style="margin-top: 10px;">
+        <!-- Botones de control -->
+        <button id="myLocation" class="btn btn-success"><i class="bi bi-geo"></i> Mi ubicación</button> <!-- Botón para obtener la ubicación actual -->
+        <button class="showNode btn btn-primary" data-coords="19.058399575939376,-98.15195090000024">Corralon 1</button> <!-- Botones para mostrar ubicaciones de nodos -->
+        <button class="showNode btn btn-primary" data-coords="19.043867891621826,-98.19823368764898">Corralon 2</button>
+        <button class="showNode btn btn-primary" data-coords="19.055315958145226,-98.18352026080372">Corralon 3</button>
+        <button class="showNode btn btn-primary" data-coords="19.0516,-98.1913">Corralon 4</button>
+        <button class="showNode btn btn-primary" data-coords="19.0487,-98.1950">Corralon 5</button>
+        <button id="clearRoute" class="btn btn-danger">Quitar Ruta</button> <!-- Botón para quitar la ruta en el mapa -->
+    </div>
+    
+    <div id="map" style="width: 100%; height: 400px;"></div> <!-- Contenedor del mapa -->
+
+    <script>
+        var map = L.map('map').setView([19.0413, -98.2062], 13); // Crea un objeto de mapa y lo configura con una vista inicial
+        var tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map); // Agrega una capa de mosaico de OpenStreetMap al mapa
+
+        var routingControl; // Variable para controlar las rutas en el mapa
+
+        // Función para agregar nodos al mapa
+        function addNode(coords, nodeName) {
+            var marker = L.marker(coords);
+            marker.bindPopup(nodeName).addTo(map);
+        }
+
+        // Función para borrar todos los nodos del mapa
+        function clearNodes() {
+            map.eachLayer(function (layer) {
+                if (layer instanceof L.Marker) {
+                    map.removeLayer(layer);
+                }
+            });
+        }
+
+        // Agrega todos los nodos al cargar el mapa
+        addNode([19.058399575939376, -98.15195090000024], "Corralon 1");
+        addNode([19.043867891621826, -98.19823368764898], "Corralon 2");
+        addNode([19.055315958145226, -98.18352026080372], "Corralon 3");
+        addNode([19.0516, -98.1913], "Corralon 4");
+        addNode([19.0487, -98.1950], "Corralon 5");
+
+        // Agrega un evento de escucha a los elementos del DOM con el id "controls"
+        document.querySelector("#controls").addEventListener('click', function (e) {
+            if (e.target.classList.contains('showNode')) { // Si se hace clic en un botón de nodo
+                if (routingControl) map.removeControl(routingControl); // Quita el control de ruta anterior si existe
+                clearNodes(); // Borra todos los nodos del mapa
+                var coords = e.target.getAttribute('data-coords').split(',');
+                var destination = L.latLng(coords); // Obtiene las coordenadas de destino desde el botón
+                map.setView(destination, 13); // Centra el mapa en la ubicación seleccionada
+                navigator.geolocation.getCurrentPosition(function(position) { // Obtiene la ubicación actual del dispositivo
+                    routingControl = L.Routing.control({
+                        waypoints: [
+                            L.latLng([position.coords.latitude, position.coords.longitude]), // Origen: Ubicación actual
+                            destination // Destino: Coordenadas del botón
+                        ]
+                    }).addTo(map); // Agrega el control de ruta al mapa
+                });
+            } else if (e.target.id === 'myLocation') { // Si se hace clic en el botón "Mi ubicación"
+                navigator.geolocation.getCurrentPosition(function(position) { // Obtiene la ubicación actual del dispositivo
+                    map.setView([position.coords.latitude, position.coords.longitude], 13); // Centra el mapa en la ubicación actual
+                    if (routingControl) map.removeControl(routingControl); // Quita el control de ruta anterior si existe
+                    clearNodes(); // Borra todos los nodos del mapa
+                    // Agrega todos los nodos nuevamente
+                    addNode([19.058399575939376, -98.15195090000024], "Corralon 1");
+                    addNode([19.043867891621826, -98.19823368764898], "Corralon 2");
+                    addNode([19.055315958145226, -98.18352026080372], "Corralon 3");
+                    addNode([19.0516, -98.1913], "Corralon 4");
+                    addNode([19.0487, -98.1950], "Corralon 5");
+                });
+            } else if (e.target.id === 'clearRoute') { // Si se hace clic en el botón "Quitar Ruta"
+                if (routingControl) map.removeControl(routingControl); // Quita el control de ruta actual
+            }
+        });
+
+        // Agrega Leaflet Draw para dibujar elementos en el mapa
+        var drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+        var drawControl = new L.Control.Draw({
+            edit: {
+                featureGroup: drawnItems
+            },
+            draw: {
+                marker: false, // Desactiva la herramienta de marcador
+                polygon: false,
+                circle: false,
+                rectangle: false,
+                polyline: {
+                    shapeOptions: {
+                        color: 'blue'
+                    }
+                }
+            },
+        });
+        map.addControl(drawControl);
+
+        // Evento que se activa cuando se crea un elemento dibujado en el mapa
+        map.on('draw:created', function (e) {
+            var type = e.layerType;
+            var layer = e.layer;
+
+            if (type === 'polyline') {
+                if (routingControl) map.removeControl(routingControl);
+                routingControl = L.Routing.control({
+                    waypoints: [
+                        L.latLng(layer.getLatLngs()[0]),
+                        L.latLng(layer.getLatLngs()[1])
+                    ]
+                }).addTo(map); // Agrega un nuevo control de ruta al mapa
+            }
+
+            drawnItems.addLayer(layer); // Agrega el elemento dibujado al mapa
+        });
+    </script>
+
+    <!-- Enlaces a bibliotecas de JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script> <!-- jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script> <!-- Popper.js -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> <!-- Bootstrap JavaScript -->
+</body>
+</html>
